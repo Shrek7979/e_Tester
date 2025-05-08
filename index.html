@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>e-Tester: 확률 실험기</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -19,8 +20,9 @@
     .container {
       background: rgba(255, 255, 255, 0.95);
       border-radius: 15px;
-      padding: 30px;
-      margin: 20px 0;
+      padding: 20px 16px;
+      margin: 10px auto;
+      max-width: 100%;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
@@ -88,13 +90,15 @@
 
     .coin-row {
       display: flex;
+      flex-wrap: wrap;         /* 좁은 화면에 줄바꿈 허용 */
       justify-content: center;
       gap: 10px;
     }
 
     .coin {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
+      font-size: 15px;
       background: #4CAF50;
       color: white;
       border-radius: 50%;
@@ -116,11 +120,11 @@
     }
 
     .chart-container {
-      height: 300px;
+      height: 250px;
       margin: 20px 0;
       background: white;
       border-radius: 10px;
-      padding: 15px;
+      padding: 10px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
@@ -255,7 +259,21 @@
 
     .conclusion-icon {
       font-size: 1.5rem;
+      }
+      @media (max-width: 480px) {
+    h1 {
+      font-size: 1.5rem;
     }
+    button {
+      width: 100%;
+      font-size: 15px;
+    }
+    .input-group {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}
   </style>
 </head>
 <body>
