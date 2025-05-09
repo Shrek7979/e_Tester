@@ -260,19 +260,29 @@
     .conclusion-icon {
       font-size: 1.5rem;
       }
-      @media (max-width: 480px) {
-    h1 {
-      font-size: 1.5rem;
-    }
-    button {
-      width: 100%;
-      font-size: 15px;
-    }
-    .input-group {
-      flex-direction: column;
-      align-items: flex-start;
-    }
+     @media (max-width: 600px) {
+  .container {
+    padding: 8px 2px;
   }
+  .experiment-controls, .coin-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chart-container {
+    height: 180px;
+    padding: 2px;
+  }
+  .conclusion-table {
+    font-size: 0.95rem;
+    overflow-x: auto;
+    display: block;
+  }
+  input[type="number"] {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 
   </style>
 </head>
