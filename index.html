@@ -1,594 +1,298 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>e-Tester: 확률 실험기</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #E3F2FD;
-      text-align: center;
-      padding: 20px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .container {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 15px;
-      padding: 20px 16px;
-      margin: 10px auto;
-      max-width: 100%;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .title-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 30px;
-    }
-
-    .title-icon {
-      font-size: 2.5rem;
-      vertical-align: middle;
-    }
-
-    h1 {
-      color: #1565C0;
-      margin: 0;
-      font-size: 2.2rem;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.08);
-      font-family: 'Arial', sans-serif;
-    }
-
-    .content {
-      text-align: left;
-      line-height: 1.6;
-      margin-bottom: 30px;
-    }
-
-    .formula {
-      font-family: 'Arial', sans-serif;
-      margin: 20px 0;
-      padding: 20px;
-      background: #E8F5E9;
-      border-radius: 10px;
-      border: 2px solid #81C784;
-      font-size: 1.15rem;
-      text-align: center;
-    }
-
-    .experiment-controls {
-      margin: 20px 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .input-group {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .coin-area {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin: 20px 0;
-    }
-
-    .coin-row {
-      display: flex;
-      flex-wrap: wrap;         /* 좁은 화면에 줄바꿈 허용 */
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .coin {
-      width: 36px;
-      height: 36px;
-      font-size: 15px;
-      background: #4CAF50;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      transition: all 0.3s;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-
-    .coin.success {
-      background: #2E7D32;
-      transform: scale(1.1);
-    }
-
-    .coin.fail {
-      background: #C62828;
-    }
-
-    .chart-container {
-      height: 250px;
-      margin: 20px 0;
-      background: white;
-      border-radius: 10px;
-      padding: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    button {
-      padding: 12px 24px;
-      font-size: 16px;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 0 5px;
-      transition: all 0.3s;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.18);
-      font-weight: bold;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.18);
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .run-btn {
-      background-color: #43A047;
-    }
-
-    .run-btn:hover {
-      background-color: #2E7D32;
-    }
-
-    .auto-btn {
-      background-color: #039BE5;
-    }
-
-    .auto-btn:hover {
-      background-color: #01579B;
-    }
-
-    .stop-btn {
-      background-color: #FFB300;
-      color: #263238;
-    }
-
-    .stop-btn:hover {
-      background-color: #FF6F00;
-      color: #fff;
-    }
-
-    .reset-btn {
-      background-color: #F44336;
-    }
-
-    .reset-btn:hover {
-      background-color: #D32F2F;
-    }
-
-    input[type="number"] {
-      padding: 8px 12px;
-      font-size: 16px;
-      width: 80px;
-      border: 2px solid #2196F3;
-      border-radius: 6px;
-      margin: 0 10px;
-    }
-
-    input[type="number"]:focus {
-      outline: none;
-      border-color: #1976D2;
-      box-shadow: 0 0 0 2px rgba(33,150,243,0.2);
-    }
-
-    #result {
-      margin: 20px 0;
-      padding: 20px;
-      background: #E8F5E9;
-      border-radius: 10px;
-      border: 2px solid #81C784;
-    }
-
-    .disabled {
-      opacity: 0.5;
-      cursor: not-allowed !important;
-    }
-    
-    .error-message {
-      color: #D32F2F;
-      font-size: 14px;
-      margin-top: 5px;
-      display: none;
-    }
-
-    .conclusion-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 30px;
-      background: #F1F8E9;
-      border-radius: 10px;
-      overflow: hidden;
-      font-size: 1.08rem;
-    }
-
-    .conclusion-table th, .conclusion-table td {
-      border: 1px solid #BDBDBD;
-      padding: 12px 10px;
-      text-align: center;
-    }
-
-    .conclusion-table th {
-      background: #C8E6C9;
-      color: #1565C0;
-      font-weight: bold;
-    }
-
-    .conclusion-table td {
-      background: #fff;
-    }
-
-    .conclusion-title {
-      display: flex;
-      align-items: center;
-      font-size: 1.3rem;
-      font-weight: bold;
-      margin: 30px 0 10px 0;
-      color: #1976D2;
-      gap: 8px;
-    }
-
-    .conclusion-icon {
-      font-size: 1.5rem;
-      }
-     @media (max-width: 600px) {
-  .container {
-    padding: 8px 2px;
-  }
-  .experiment-controls, .coin-row {
-    flex-direction: column;
-    gap: 8px;
-  }
-  .chart-container {
-    height: 180px;
-    padding: 2px;
-  }
-  .conclusion-table {
-    font-size: 0.95rem;
-    overflow-x: auto;
-    display: block;
-  }
-  input[type="number"] {
-    width: 100%;
-    min-width: 0;
-  }
-}
-
-
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="title-row">
-      <span class="title-icon">🎲</span>
-      <h1>e-Tester: 확률 실험기</h1>
-    </div>
-    <div class="content">
-      <h2>이 실험은 무엇인가요?</h2>
-      <p>이 실험은 자연상수 e와 관련된 흥미로운 확률 현상을 보여줍니다. n개의 동전을 각각 다른 위치에 놓았을 때, 모든 동전이 원래 위치에 있지 않을 확률이 1/e에 수렴한다는 것을 실험적으로 확인할 수 있습니다.</p>
-      <div class="formula">
-        \[\lim_{n \to \infty} P(\text{모든 동전이 원래 위치에 없음}) = \frac{1}{e} \approx 0.367879\]
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>e-Tester: 확률 실험기</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="title-row">
+        <span class="title-icon">🎲</span>
+        <h1>e-Tester: 확률 실험기</h1>
       </div>
-      <h2>실험 방법</h2>
-      <ol>
-        <li>동전의 개수 k를 설정합니다.</li>
-        <li>"시행" 버튼을 누르면 동전들이 무작위로 섞입니다.</li>
-        <li>모든 동전이 원래 위치에 없으면 성공, 하나라도 원래 위치에 있으면 실패입니다.</li>
-        <li>여러 번 시행하면서 성공 확률이 1/e에 수렴하는 것을 확인할 수 있습니다.</li>
-      </ol>
-      <h2>수학적 의미</h2>
-      <p>이 실험은 완전순열(derangement)의 개념을 보여줍니다. 완전순열이란 n개의 원소를 나열할 때, 모든 원소가 원래 위치에 있지 않은 경우의 수를 의미합니다. 이 확률이 1/e에 수렴한다는 것은 매우 흥미로운 수학적 사실입니다.</p>
-      <div class="conclusion-title">
-        <span class="conclusion-icon">🎯</span>
-        결론적으로:
-      </div>
-      <table class="conclusion-table">
-        <tr>
-          <th>개념</th>
-          <th>수식</th>
-          <th>의미</th>
-        </tr>
-        <tr>
-          <td>\(e^x\) 테일러 급수</td>
-          <td>\(e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!}\)</td>
-          <td>지수함수의 무한급수 표현</td>
-        </tr>
-        <tr>
-          <td>\(\frac{1}{e}\)</td>
-          <td>\(\sum_{n=0}^{\infty} \frac{(-1)^n}{n!}\)</td>
-          <td>\(e^{-1}\)</td>
-        </tr>
-        <tr>
-          <td>derangement 확률</td>
-          <td>\(\frac{D_k}{k!} = \sum_{n=0}^{k} \frac{(-1)^n}{n!}\)</td>
-          <td>k가 커질수록 \(\frac{1}{e}\)에 가까워짐</td>
-        </tr>
-      </table>
-    </div>
-    <button id="start-experiment-btn" class="run-btn">실험하기</button>
-    <div id="experiment-section" style="display:none;">
-      <div class="experiment-controls">
-        <div class="input-group">
-          <label for="k">동전 개수:</label>
-          <input type="number" id="k" value="10" min="1" max="100">
-          <div id="error-message" class="error-message"></div>
+
+      <div class="tab-container">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="introduction">소개</button>
+          <button class="tab-btn" data-tab="experiment">실험</button>
+          <button class="tab-btn" data-tab="statistics">통계</button>
         </div>
-        <button onclick="runTest()" class="run-btn">시행</button>
-        <button onclick="startAutoRun()" class="auto-btn">자동 시행</button>
-        <button onclick="stopAutoRun()" class="stop-btn">정지</button>
-        <button onclick="resetExperiment()" class="reset-btn">리셋</button>
-      </div>
-      <div id="coin-area" class="coin-area"></div>
-      <div id="result"></div>
-      <div class="chart-container">
-        <canvas id="chart"></canvas>
+
+        <!-- 소개 탭 -->
+        <div id="introduction" class="tab-content active">
+          <div class="content">
+            <h2>
+              <i class="fas fa-question-circle"></i> 이 실험은 무엇인가요?
+            </h2>
+            <p>
+              이 실험은 자연상수 e와 관련된 흥미로운 확률 현상을 보여줍니다.
+              n개의 동전을 각각 다른 위치에 놓았을 때, 모든 동전이 원래 위치에
+              있지 않을 확률이 1/e에 수렴한다는 것을 실험적으로 확인할 수
+              있습니다.
+            </p>
+            <div class="formula">
+              \[\lim_{n \to \infty} P(\text{모든 동전이 원래 위치에 없음}) =
+              \frac{1}{e} \approx 0.367879\]
+            </div>
+
+            <h2><i class="fas fa-flask"></i> 실험 방법</h2>
+            <ol>
+              <li>동전의 개수 k를 설정합니다.</li>
+              <li>"시행" 버튼을 누르면 동전들이 무작위로 섞입니다.</li>
+              <li>
+                모든 동전이 원래 위치에 없으면 성공, 하나라도 원래 위치에 있으면
+                실패입니다.
+              </li>
+              <li>
+                여러 번 시행하면서 성공 확률이 1/e에 수렴하는 것을 확인할 수
+                있습니다.
+              </li>
+            </ol>
+
+            <h2><i class="fas fa-infinity"></i> 수학적 의미</h2>
+            <p>
+              이 실험은 완전순열(derangement)의 개념을 보여줍니다. 완전순열이란
+              n개의 원소를 나열할 때, 모든 원소가 원래 위치에 있지 않은 경우의
+              수를 의미합니다. 이 확률이 1/e에 수렴한다는 것은 매우 흥미로운
+              수학적 사실입니다.
+            </p>
+
+            <div class="conclusion-title">
+              <span class="conclusion-icon"
+                ><i class="fas fa-bullseye"></i
+              ></span>
+              결론적으로:
+            </div>
+            <table class="conclusion-table">
+              <tr>
+                <th>개념</th>
+                <th>수식</th>
+                <th>의미</th>
+              </tr>
+              <tr>
+                <td>\(e^x\) 테일러 급수</td>
+                <td>\(e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!}\)</td>
+                <td>지수함수의 무한급수 표현</td>
+              </tr>
+              <tr>
+                <td>\(\frac{1}{e}\)</td>
+                <td>\(\sum_{n=0}^{\infty} \frac{(-1)^n}{n!}\)</td>
+                <td>\(e^{-1}\)</td>
+              </tr>
+              <tr>
+                <td>derangement 확률</td>
+                <td>\(\frac{D_k}{k!} = \sum_{n=0}^{k} \frac{(-1)^n}{n!}\)</td>
+                <td>k가 커질수록 \(\frac{1}{e}\)에 가까워짐</td>
+              </tr>
+            </table>
+
+            <div class="button-container text-right">
+              <button id="start-experiment-btn" class="run-btn pulse-effect">
+                실험하기 <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 실험 탭 -->
+        <div id="experiment" class="tab-content">
+          <div class="experiment-controls">
+            <div class="settings-panel">
+              <div class="input-group">
+                <label for="k"><i class="fas fa-coins"></i> 동전 개수:</label>
+                <div class="number-input">
+                  <button
+                    class="decrease-btn"
+                    type="button"
+                    onclick="decrementValue()"
+                  >
+                    -
+                  </button>
+                  <input type="number" id="k" value="10" min="1" max="100" />
+                  <button
+                    class="increase-btn"
+                    type="button"
+                    onclick="incrementValue()"
+                  >
+                    +
+                  </button>
+                </div>
+                <div id="error-message" class="error-message"></div>
+              </div>
+              <div class="input-group">
+                <label for="speed-slider"
+                  ><i class="fas fa-tachometer-alt"></i> 자동 시행 속도:</label
+                >
+                <input
+                  type="range"
+                  id="speed-slider"
+                  min="50"
+                  max="1000"
+                  value="150"
+                  class="slider"
+                />
+                <span id="speed-value">150ms</span>
+              </div>
+            </div>
+            <div class="buttons-panel">
+              <button onclick="ExperimentController.runTest()" class="run-btn">
+                <i class="fas fa-play"></i> 시행
+              </button>
+              <button
+                onclick="ExperimentController.startAutoRun()"
+                class="auto-btn"
+              >
+                <i class="fas fa-sync-alt"></i> 자동 시행
+              </button>
+              <button
+                onclick="ExperimentController.stopAutoRun()"
+                class="stop-btn"
+              >
+                <i class="fas fa-pause"></i> 정지
+              </button>
+              <button onclick="ExperimentController.reset()" class="reset-btn">
+                <i class="fas fa-redo"></i> 리셋
+              </button>
+            </div>
+          </div>
+
+          <div class="stats-panel">
+            <div class="stat-box">
+              <div class="stat-title">
+                <i class="fas fa-flask"></i> 실험 횟수
+              </div>
+              <div id="total-trials" class="stat-value">0</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-title">
+                <i class="fas fa-check-circle"></i> 성공 횟수
+              </div>
+              <div id="success-count" class="stat-value">0</div>
+            </div>
+            <div class="stat-box success-rate">
+              <div class="stat-title">
+                <i class="fas fa-percentage"></i> 성공률
+              </div>
+              <div id="success-rate" class="stat-value">0.0000</div>
+            </div>
+            <div class="stat-box theoretical">
+              <div class="stat-title">
+                <i class="fas fa-calculator"></i> 이론값 (1/e)
+              </div>            
+              <div id="theoretical-value" class="stat-value">0.3679</div>
+            </div>
+          </div>
+
+          <div class="coins-container">
+            <h3><i class="fas fa-random"></i> 동전 배치</h3>
+            <div id="coin-area" class="coin-area"></div>
+            <div id="result" class="result-hidden"></div>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="chart"></canvas>
+          </div>
+          
+          <div class="button-container text-right">
+            <button id="view-stats-btn" class="stats-btn pulse-effect">
+              통계보기 <i class="fas fa-chart-bar"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- 통계 탭 -->
+        <div id="statistics" class="tab-content">
+          <div class="statistics-panel">
+            <div class="distribution-chart-container">
+              <h3><i class="fas fa-chart-pie"></i> 동전별 제자리 위치 확률</h3>
+              <canvas id="distribution-chart"></canvas>
+            </div>
+            <h2><i class="fas fa-chart-bar"></i> 실험 통계</h2>
+            <div class="stats-details">
+              <!-- 첫 번째 줄: 총실험횟수/성공횟수/현재 성공률 -->
+              <div class="stats-row-group">
+                <div class="stats-row">
+                  <div class="stats-label">총 실험 횟수:</div>
+                  <div id="stats-total-trials" class="stats-value">0</div>
+                </div>
+                <div class="stats-row">
+                  <div class="stats-label">성공 횟수:</div>
+                  <div id="stats-success-count" class="stats-value">0</div>
+                </div>
+                <div class="stats-row">
+                  <div class="stats-label">현재 성공률:</div>
+                  <div id="stats-success-rate" class="stats-value">0.0000</div>
+                </div>
+              </div>
+              
+              <!-- 두 번째 줄: 이론적 확률/오차 -->
+              <div class="stats-row-group">
+                <div class="stats-row">
+                  <div class="stats-label">이론적 확률 (1/e):</div>
+                  <div id="stats-theoretical" class="stats-value">0.3679</div>
+                </div>
+                <div class="stats-row">
+                  <div class="stats-label">이론값과의 차이:</div>
+                  <div id="stats-difference" class="stats-value">0.0000</div>
+                </div>
+              </div>
+              
+              <!-- 세 번째 줄: 최대연속성공/최대연속실패 -->
+              <div class="stats-row-group">
+                <div class="stats-row">
+                  <div class="stats-label">최대 연속 성공:</div>
+                  <div id="stats-max-streak" class="stats-value">0</div>
+                </div>
+                <div class="stats-row">
+                  <div class="stats-label">최대 연속 실패:</div>
+                  <div id="stats-max-fail-streak" class="stats-value">0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
+    <div class="toast" id="toast-message"></div>
+
+    <footer>
+      <p>e-Tester: 확률 실험기 ©ShrekMath</p>
+    </footer>
+  <script src="main.js"></script>
   <script>
-    let totalTrials = 0;
-    let successCount = 0;
-    let intervalId = null;
-    let chart = null;
-    const MAX_DATA_POINTS = 100;
-
-    const eValue = Math.E.toFixed(6);
-    const oneOverE = (1 / Math.E).toFixed(6);
-
-    function initializeChart() {
-      const ctx = document.getElementById("chart").getContext("2d");
-      chart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: [],
-          datasets: [
-            {
-              label: "누적 성공률",
-              data: [],
-              borderColor: "#2196F3",
-              backgroundColor: "rgba(33, 150, 243, 0.1)",
-              borderWidth: 2,
-              tension: 0.4,
-              pointRadius: 3,
-              pointHoverRadius: 5
-            },
-            {
-              label: "y = 1/e ≈ " + oneOverE,
-              data: [],
-              borderColor: "#F44336",
-              borderDash: [5, 5],
-              borderWidth: 2,
-              pointRadius: 0
+    const startExperimentBtn = document.getElementById("start-experiment-btn");
+    if (startExperimentBtn) {
+        startExperimentBtn.addEventListener("click", () => {
+            const experimentTabBtn = document.querySelector('[data-tab="experiment"]');
+            if (experimentTabBtn) {
+                experimentTabBtn.click(); // 실험 탭으로 전환만 수행
             }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'top',
-              labels: {
-                font: {
-                  size: 12,
-                  weight: 'bold'
-                }
-              }
-            },
-            tooltip: {
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              titleFont: {
-                size: 14
-              },
-              bodyFont: {
-                size: 13
-              },
-              padding: 10
-            }
-          },
-          scales: {
-            y: {
-              min: 0,
-              max: 1,
-              ticks: {
-                stepSize: 0.1,
-                font: {
-                  size: 11
-                }
-              },
-              grid: {
-                color: 'rgba(0, 0, 0, 0.1)'
-              }
-            },
-            x: {
-              grid: {
-                color: 'rgba(0, 0, 0, 0.1)'
-              },
-              ticks: {
-                font: {
-                  size: 11
-                }
-              }
-            }
-          },
-          animation: {
-            duration: 750
-          }
-        }
-      });
-    }
-
-    function validateInput() {
-      const kInput = document.getElementById("k");
-      const errorMessage = document.getElementById("error-message");
-      const value = parseInt(kInput.value);
-      
-      if (isNaN(value) || value < 1 || value > 100) {
-        errorMessage.style.display = "block";
-        errorMessage.textContent = "1에서 100 사이의 숫자를 입력해주세요.";
-        return false;
-      }
-      
-      errorMessage.style.display = "none";
-      return true;
-    }
-
-    function updateButtonStates(isRunning) {
-      const buttons = document.querySelectorAll('button');
-      const kInput = document.getElementById("k");
-      
-      buttons.forEach(button => {
-        if (button.onclick === startAutoRun) {
-          button.disabled = isRunning;
-        } else if (button.onclick === stopAutoRun) {
-          button.disabled = !isRunning;
-        }
-      });
-      
-      kInput.disabled = isRunning;
-    }
-
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    function updateChart(decimal) {
-      if (chart.data.labels.length >= MAX_DATA_POINTS) {
-        chart.data.labels.shift();
-        chart.data.datasets[0].data.shift();
-        chart.data.datasets[1].data.shift();
-      }
-
-      chart.data.labels.push(totalTrials);
-      chart.data.datasets[0].data.push(parseFloat(decimal));
-      chart.data.datasets[1].data.push(oneOverE);
-      chart.update();
-    }
-
-    function runTest() {
-      if (!validateInput()) return;
-      
-      const k = parseInt(document.getElementById("k").value);
-      const coinArea = document.getElementById("coin-area");
-      const resultBox = document.getElementById("result");
-
-      coinArea.innerHTML = "";
-
-      let coins = shuffle([...Array(k).keys()].map(i => i + 1));
-      let isSuccess = true;
-      
-      for (let i = 0; i < k; i += 10) {
-        const row = document.createElement("div");
-        row.className = "coin-row";
-        
-        const rowCoins = coins.slice(i, i + 10);
-
-        rowCoins.forEach((coinValue, index) => {
-          const coin = document.createElement("div");
-          coin.className = "coin";
-          coin.innerText = coinValue;
-
-          if (coinValue === i + index + 1) {
-            coin.classList.add("fail");
-            isSuccess = false;
-          }
-
-          row.appendChild(coin);
         });
-
-        coinArea.appendChild(row);
-      }
-
-      if (isSuccess) {
-        successCount++;
-        document.querySelectorAll('.coin').forEach(coin => {
-          coin.classList.add("success");
+    }
+    // 통계보기 버튼 클릭 시 통계 탭으로 전환만 수행
+    const viewStatsBtn = document.getElementById("view-stats-btn");
+    if (viewStatsBtn) {
+        viewStatsBtn.addEventListener("click", () => {
+            const statisticsTabBtn = document.querySelector('[data-tab="statistics"]');
+            if (statisticsTabBtn) {
+                statisticsTabBtn.click(); // 통계 탭으로 전환만 수행
+            }
         });
-      }
-
-      totalTrials++;
-      const fraction = `${successCount} / ${totalTrials}`;
-      const decimal = (successCount / totalTrials).toFixed(4);
-      resultBox.innerHTML = `<h2>✅ 성공 확률: ${fraction} = ${decimal}</h2>
-      <p>ℹ️ 자연상수 e ≈ ${eValue}, 1/e ≈ ${oneOverE}</p>`;
-
-      updateChart(decimal);
     }
-
-    function startAutoRun() {
-      if (intervalId === null) {
-        updateButtonStates(true);
-        runTest();
-        intervalId = setInterval(runTest, 150);
-      }
-    }
-
-    function stopAutoRun() {
-      clearInterval(intervalId);
-      intervalId = null;
-      updateButtonStates(false);
-    }
-
-    function resetExperiment() {
-      stopAutoRun();
-      totalTrials = 0;
-      successCount = 0;
-      
-      if (chart) {
-        chart.data.labels = [];
-        chart.data.datasets[0].data = [];
-        chart.data.datasets[1].data = [];
-        chart.update();
-      }
-      
-      document.getElementById("result").innerHTML = "";
-      document.getElementById("coin-area").innerHTML = "";
-      document.getElementById("error-message").style.display = "none";
-    }
-
-    document.getElementById('start-experiment-btn').addEventListener('click', function() {
-      document.getElementById('experiment-section').style.display = 'block';
-      // 차트가 아직 초기화되지 않았다면 초기화
-      if (!chart) {
-        initializeChart();
-      }
-    });
-
-    window.addEventListener('load', initializeChart);
   </script>
-</body>
+  </body>
 </html>
